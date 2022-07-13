@@ -1,0 +1,5 @@
+eclipse.preferences.version=1
+encoding//app/user/lcd_128x64.c=UTF-8
+encoding//app/user/lcd_128x64.h=UTF-8
+encoding//app/user/led_matrix_main.c=UTF-8
+encoding//app/user/time_tool.c=UTF-8

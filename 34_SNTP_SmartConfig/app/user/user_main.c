@@ -183,7 +183,7 @@ void  ESP_ProcSwithcNtf(void *pdata)
 
 	if(4 == pstSwithcNtf->ucPortId)
 	{
-		PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO4_U,	FUNC_GPIO4);
+		//PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO4_U,	FUNC_GPIO4);
 	}
 
 	if(5 == pstSwithcNtf->ucPortId)
@@ -664,7 +664,7 @@ void  smartconfig_done(sc_status status, void *pdata)
 //			//OLED_ShowString(0,4,"Connect to WIFI ");
 //			//OLED_ShowString(0,6,"Successfully    ");
 			//-----------------------------------------------------------------------------------------------
-            OLED_ShowPicture();
+            //OLED_ShowPicture();
     		//----------------------------------------------------------------
             /* 显 示开机动画 */
     		////OLED_ShowString(0,0,"                ");	// Internet Time
@@ -731,7 +731,7 @@ void  OS_Timer_IP_cb(void)
 		/* 设置pwm */
 
 		Wifi_conned();
-		//ESP8266_SNTP_Init_JX();			// 初始化SNTP
+		ESP8266_SNTP_Init_JX();			// 初始化SNTP
 	}
 
 
@@ -913,11 +913,15 @@ void  user_init(void)
 
 	OS_Timer_IP_Init_JX(1000,1);	// 定时查询8266连接WIFI情况
 
+#ifdef PWM_CTL
 	os_printf("start init pwm port\r\n");
 	pwm_user_light_init();
+#endif
 
+#ifdef SWITCH_CTL
 	os_printf("switch\r\n");
 	user_init_switch();
+#endif
 }
 //=================================================================================================
 

@@ -76,6 +76,7 @@
 #include "pwm.h"
 #include "user_light.h"
 #include "gpio16.h"
+#include "ip_addr.h"
 
 //==================================================================================
 
@@ -143,7 +144,7 @@ void  Wifi_conned(void){
         opmode = wifi_get_opmode_default();
         os_printf("\r\n当前的工作模式:%d\r\n",opmode);
         //my_station_init((struct ip_addr *)remote_ip,&info.ip,1025);//Client端初始化主函数
-        my_server_init(&info.ip,1213);//Server端初始化主函数
+        //my_server_init(&info.ip,1213);//Server端初始化主函数
         return;
     }else{
         if(count>=7){
@@ -336,6 +337,72 @@ void  my_server_init(struct ip_addr *local_ip,int port){
 
 
     espconn_accept(&esp_conn);
+
+}
+
+void MyClientSndData(void *arg)
+{
+    struct espconn *pespconn = arg;
+    os_delay_us(50000); // 延时50ms后关闭;
+
+    os_printf("发送成功,关闭\r\n");// 输出重新连接的错误代码
+	espconn_disconnect(pespconn);
+}
+void MyClientRcvData(void *arg, char *pdata, unsigned short len)
+{
+    os_printf("收到数据\r\n");// 输出重新连接的错误代码
+}
+
+void MyClientDisConn(void *arg)
+{
+
+}
+
+void MyClientConnSucc(void *arg)
+{
+    os_printf("连接成功\r\n");// 输出重新连接的错误代码
+    struct espconn *pespconn = (struct espconn*)arg;
+	espconn_regist_recvcb(pespconn, MyClientRcvData);
+	espconn_regist_sentcb(pespconn, MyClientSndData); // 发送数据成功函数
+	espconn_regist_disconcb(pespconn, MyClientDisConn);
+
+	// send data to
+	uint8_t tmpHumidDataArr[] = {6,0,0,0,0,0};
+	tmpHumidDataArr[2] = DHT11_Data_Array[0];
+	tmpHumidDataArr[3] = DHT11_Data_Array[2];
+	tmpHumidDataArr[4] = DHT11_Data_Array[1];
+	tmpHumidDataArr[5] = DHT11_Data_Array[3];
+
+	sint8 rslt = espconn_send((struct espconn *)arg, tmpHumidDataArr, 6);
+    os_printf("snd rslt = %d \r\n", rslt);// 输出重新连接的错误代码
+}
+
+void MyClientConnFail(void *arg, sint8 err)
+{
+    os_printf("失败=%d\r\n", err);// 输出重新连接的错误代码
+}
+
+void my_client_init(struct ip_addr *remoteIp,int port)
+{
+    os_printf("start client \r\n");// 输出重新连接的错误代码
+    LOCAL struct espconn esp_conn;
+    esp_conn.type = ESPCONN_TCP;
+    esp_conn.state = ESPCONN_NONE;
+    esp_conn.proto.tcp = (esp_tcp *)os_malloc(sizeof(esp_tcp));
+    os_memcpy(esp_conn.proto.tcp->remote_ip, remoteIp, 4);
+    esp_conn.proto.tcp->remote_port = port;
+    esp_conn.proto.tcp->local_port = espconn_port();
+
+    //注册连接成功的回调函数和连接失败重新连接的回调函数
+    sint8 rst = espconn_regist_connectcb(&esp_conn, MyClientConnSucc);//注册一个连接成功回调函数
+    os_printf("espconn_regist_connectcb rslt = %d \r\n", rst);// 输出重新连接的错误代码
+
+    rst = espconn_regist_reconcb(&esp_conn, MyClientConnFail);//注册一个连接失败重新连接回调函数
+    os_printf("espconn_regist_reconcb rslt = %d \r\n", rst);// 输出重新连接的错误代码
+
+    rst = espconn_connect(&esp_conn);
+    os_printf("espconn_connect rslt = %d \r\n", rst);// 输出重新连接的错误代码
+
 }
 
 // 毫秒延时函数
@@ -521,6 +588,10 @@ void  OS_Timer_SNTP_cb(void	 * arg)
 			 os_printf("Temp = %s\r\n",DHT11_Data_Char[1]);		// 时间戳
 			 os_printf("\r\nHumid = %s\r\n",DHT11_Data_Char[0]);	// 实际时间
 			 os_printf("--------------------------------------------------------\r\n");
+
+			 struct ip_info info; //用于获取IP地址的信息
+			 IP4_ADDR(&(info.ip), 192, 168, 3, 10);
+			 my_client_init(&(info.ip),1213);
 		}
 
 		else

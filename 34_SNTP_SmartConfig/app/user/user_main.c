@@ -368,10 +368,10 @@ void MyClientConnSucc(void *arg)
 
 	// send data to
 	uint8_t tmpHumidDataArr[] = {6,0,0,0,0,0};
-	tmpHumidDataArr[2] = DHT11_Data_Array[0];
-	tmpHumidDataArr[3] = DHT11_Data_Array[2];
-	tmpHumidDataArr[4] = DHT11_Data_Array[1];
-	tmpHumidDataArr[5] = DHT11_Data_Array[3];
+	tmpHumidDataArr[2] = DHT11_Data_Array[2];
+	tmpHumidDataArr[3] = DHT11_Data_Array[0];
+	tmpHumidDataArr[4] = DHT11_Data_Array[3];
+	tmpHumidDataArr[5] = DHT11_Data_Array[1];
 
 	sint8 rslt = espconn_send((struct espconn *)arg, tmpHumidDataArr, 6);
     os_printf("snd rslt = %d \r\n", rslt);// 输出重新连接的错误代码
@@ -381,14 +381,15 @@ void MyClientConnFail(void *arg, sint8 err)
 {
     os_printf("失败=%d\r\n", err);// 输出重新连接的错误代码
 }
-
+esp_tcp glb;
 void my_client_init(struct ip_addr *remoteIp,int port)
 {
     os_printf("start client \r\n");// 输出重新连接的错误代码
     LOCAL struct espconn esp_conn;
     esp_conn.type = ESPCONN_TCP;
     esp_conn.state = ESPCONN_NONE;
-    esp_conn.proto.tcp = (esp_tcp *)os_malloc(sizeof(esp_tcp));
+    os_memset(&glb, 0, sizeof(glb));
+    esp_conn.proto.tcp = &glb;
     os_memcpy(esp_conn.proto.tcp->remote_ip, remoteIp, 4);
     esp_conn.proto.tcp->remote_port = port;
     esp_conn.proto.tcp->local_port = espconn_port();

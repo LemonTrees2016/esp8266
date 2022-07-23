@@ -81,7 +81,7 @@ void  Lcd12x864_write_8bit(unsigned char dat)
 void  Lcd12x864_write_byte(unsigned char dat, unsigned char command)
 {
     uint8_t base[3] = {0xf8, 0, 0};
-    uint16_t delayTime = 10;
+    uint16_t delayTime = 1;
 
     // 濡傛灉鏄暟鎹�
     if (command == 1) {
@@ -398,7 +398,7 @@ void Lcd128x64InitTotal()
     Lcd12x864_init();
     Lcd12x864_clear();
 
-    //DisplayImage(blackImgData);
+    DisplayImage(blackImgData);
 
 	return;
 }
@@ -423,7 +423,7 @@ void drawCircle(uint8_t num)
 
 void DispLcd128x64(void)
 {
-	os_sprintf(cntDispBuff + 4, "%d", cnt);
+	//os_sprintf(cntDispBuff + 4, "%d", cnt);
     //Lcd12x864_write_english_string(0, 1, "para:");
     //Lcd12x864_write_english_string(1, 2, cntDispBuff + 4);
     //Lcd12x864_write_english_string(1, 3, cntDispBuff + 4);
@@ -432,24 +432,25 @@ void DispLcd128x64(void)
 
 	TimerStrus* timeStru = GetTimerAddr();
 
-	os_memset(cntDispBuff, 0, 20);
+/*	os_memset(cntDispBuff, 0, 20);
 	os_sprintf(cntDispBuff, "%4d/%02d/%02d", timeStru->year, timeStru->month, timeStru->day);
     Lcd12x864_write_english_string(0, 1, cntDispBuff);
 	os_memset(cntDispBuff, 0, 20);
 	os_sprintf(cntDispBuff, "%02d:%02d:%02d", timeStru->hour, timeStru->minit, timeStru->sec);
-    Lcd12x864_write_english_string(0, 2, cntDispBuff);
+    Lcd12x864_write_english_string(0, 2, cntDispBuff);*/
     //drawCircle(0);
 
     //vTaskDelay(delayCycle / portTICK_RATE_MS);
 
-    //copyDispDat(timeStru->hour);
-    //DisplayImageXY(img_buff_32x32, 32, 32, 0, 1);
-    //copyDispDat(timeStru->minit);
-    //DisplayImageXY(img_buff_32x32, 32, 32, 64, 1);
-    //copyDispDat(timeStru->sec);
-    //DisplayImageXY(img_buff_32x32, 32, 32, 96, 1);
-	//system_soft_wdt_feed();
-    //dispNum(cnt);
+	//os_sprintf(cntDispBuff + 4, "%d", cnt);
+/*    copyDispDat(timeStru->hour);
+    DisplayImageXY(img_buff_32x32, 32, 32, 0, 1);
+    copyDispDat(timeStru->minit);
+    DisplayImageXY(img_buff_32x32, 32, 32, 32, 1);
+    copyDispDat(timeStru->sec);
+    DisplayImageXY(img_buff_32x32, 32, 32, 64, 1);
+	system_soft_wdt_feed();*/
+    dispNum(cnt);
     os_printf("cnt1: %d\n", cnt++);
 
 
